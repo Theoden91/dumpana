@@ -5,7 +5,7 @@ dumpana_flags=
 elements=
 logfile=">&1"
 name=
-path="."
+path="$(pwd)"
 
 # Text to be shown when help is requested
 show_help() {
@@ -102,6 +102,19 @@ done
 # set trap on exit signals
 trap "on_exit" EXIT
 
+# parse relative path
+if [[ ${path:0:2} == "./" ]]; then
+	path="$(pwd)/${path:2}"
+fi
+# change possible "//" to "/"
+path=${path//\/\///}
+
+#check if binary exists
+if ! [[ -e $path/dumpana ]]; then
+	echo "Could not find dumpana binary file in path $path"
+	exit 1
+fi
+
 # reset single commands file
 if [[ -e tmp.commands ]]; then
     rm tmp.commands
@@ -109,9 +122,6 @@ fi
 
 # feed the elements to commands file
 echo "$elements" > tmp.commands
-
-# instructions counter
-instructions=0
 
 # find all scripts with commands
 # execute find & split it's output by newline delimiter
@@ -136,7 +146,7 @@ if [[ $logfile != ">&1" ]]; then
 fi
 
 # call program & redirect output to log file
-cmd="./$path/dumpana $dumpana_flags $dumpname < tmp.commands $logfile"
+cmd="$path/dumpana $dumpana_flags $dumpname < tmp.commands $logfile"
 echo "Command called: $cmd" | tr -s ' '
 # eval $cmd
 
