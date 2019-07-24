@@ -17,6 +17,9 @@ Usage: ${0##*/} --scripts=<name> --dump=<dumpname> --elements="<elements>"
 Run dumpana binary multiple times with <dumpname> file loaded and <elements> mapped, and commands
 parsed from files with name <name>*.commands (in lexographical order).
 
+**IMPORTANT NOTICE**
+<name>*.commands files must have all commands listed in separate new line each.
+
     -h, --help                          display help & exit
     ________________________________________________________________________________________________
     mandatory:
@@ -132,12 +135,15 @@ for file in "${cmds_array[@]}"; do
     echo -e "" >> tmp.commands
 done
 
+# clear all empty lines
+sed -i '/^$/d' tmp.commands
 # push exit command to file
 echo -e "0\n" >> tmp.commands
 
 if [[ $logfile != ">&1" ]]; then
+    rm -rf "$logfile"
     echo "Dump file(s) loaded: \"$dumpname\"" &>> $logfile
-    echo "Matched commands files: \"$name*.commands\"" &>> $logfile
+    echo "Matched ${#cmds_array[@]} commands files: \"$name*.commands\"" &>> $logfile
     if [[ ! -z $dumpana_flags ]]; then
         echo "Extra dumpana flags: \"$dumpana_flags\"" &>> $logfile
     fi
@@ -148,7 +154,7 @@ fi
 # call program & redirect output to log file
 cmd="$path/dumpana $dumpana_flags $dumpname < tmp.commands $logfile"
 echo "Command called: $cmd" | tr -s ' '
-# eval $cmd
+eval $cmd
 
 # cleanup
 rm tmp.commands
