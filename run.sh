@@ -18,7 +18,8 @@ Run dumpana binary multiple times with <dumpname> file loaded and <elements> map
 parsed from files with name <name>*.commands (in lexographical order).
 
 **IMPORTANT NOTICE**
-<name>*.commands files must have all commands listed in separate new line each.
+<name>*.commands files must have all commands listed in separate new line each. If multiple values
+are being read from single standard input buffer flush, then list them space-separeted.
 
     -h, --help                          display help & exit
     ________________________________________________________________________________________________
